@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Waiting List</title>
+  <style>
+    #waiting-list-container {
+      text-align: center;
+      margin-top: 50px;
+    }
+
+    #waiting-list-display {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div id="waiting-list-container">
+    <label for="name-input">Enter your name:</label>
+    <input type="text" id="name-input">
+    <button onclick="addToWaitingList()">Add to Waiting List</button>
+    <button onclick="removeFromWaitingList()">Remove First Person</button>
+    <div id="waiting-list-display">Waiting List: </div>
+  </div>
+  
+  <script>
+    function addToWaitingList() {
+      const nameInput = document.getElementById("name-input");
+      const name = nameInput.value.trim();
+
+      if (name !== "") {
+        const waitingListDisplay = document.getElementById("waiting-list-display");
+        waitingListDisplay.textContent += ` | ${name}`;
+        nameInput.value = "";
+      }
+    }
+
+    function removeFromWaitingList() {
+      const waitingListDisplay = document.getElementById("waiting-list-display");
+      const names = waitingListDisplay.textContent.split('|').map(name => name.trim());
+
+      if (names.length > 1) {
+        names.shift(); // Remove the first person
+        waitingListDisplay.textContent = "Waiting List: " + names.join(' | ');
+      } else {
+        waitingListDisplay.textContent = "Waiting List: ";
+      }
+    }
+  </script>
+</body>
+</html>
