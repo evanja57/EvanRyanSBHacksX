@@ -32,17 +32,38 @@
 
       if (name !== "") {
         const waitingListDisplay = document.getElementById("waiting-list-display");
-        waitingListDisplay.textContent += ` | ${name}`;
+        const names = waitingListDisplay.textContent.split('|').map(group => group.trim());
+
+        let lastGroup = names.length > 0 ? names[names.length - 1] : "";
+        if (lastGroup === "" || lastGroup.split(' | ').length >= 4) {
+          // Create a new group if the last group is full or doesn't exist
+          lastGroup = name;
+          names.push(lastGroup);
+        } else {
+          // Add to the existing group
+          lastGroup += ` | ${name}`;
+          names[names.length - 1] = lastGroup;
+        }
+
+        waitingListDisplay.textContent = "Waiting List: " + names.join(' | ');
         nameInput.value = "";
       }
     }
 
     function removeFromWaitingList() {
       const waitingListDisplay = document.getElementById("waiting-list-display");
-      const names = waitingListDisplay.textContent.split('|').map(name => name.trim());
+      const names = waitingListDisplay.textContent.split('|').map(group => group.trim());
 
-      if (names.length > 1) {
-        names.shift(); // Remove the first person
+      if (names.length > 0) {
+        const firstGroup = names[0].split(' | ');
+        firstGroup.shift(); // Remove the first person from the first group
+
+        if (firstGroup.length > 0) {
+          names[0] = firstGroup.join(' | ');
+        } else {
+          names.shift(); // Remove the entire group if it becomes empty
+        }
+
         waitingListDisplay.textContent = "Waiting List: " + names.join(' | ');
       } else {
         waitingListDisplay.textContent = "Waiting List: ";

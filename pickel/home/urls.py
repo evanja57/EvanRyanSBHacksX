@@ -7,7 +7,7 @@ app_name = "home"
 urlpatterns = [
     path("", views.title),
 
-    path("queue/", views.queue),
+    path("queue/", views.queue, name="queue"),
 ]
 
 
