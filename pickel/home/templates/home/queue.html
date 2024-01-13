@@ -6,27 +6,87 @@
   <title>Waiting List Queue</title>
   <style>
     /* Add your custom styles here */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #1a1a1a;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    h1, h2 {
+      text-align: center;
+    }
+
+    div {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    label {
+      margin-bottom: 5px;
+      font-size: 18px;
+    }
+
+    input {
+      padding: 8px;
+      margin-bottom: 10px;
+      font-size: 16px;
+      border: 1px solid #fff;
+      border-radius: 5px;
+      background-color: #333;
+      color: #fff;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      background-color: #3498db;
+      color: #fff;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      margin-bottom: 10px;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
     #waiting-list {
       margin-top: 20px;
     }
-    .edit-button {
-      cursor: pointer;
-      color: blue;
-      text-decoration: underline;
-      margin-left: 10px;
+
+    ul {
+      list-style-type: none;
+      padding: 0;
     }
-    .finish-edits-button {
-      cursor: pointer;
-      color: green;
-      text-decoration: underline;
-      margin-left: 10px;
+
+    li {
+      margin-bottom: 10px;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
     }
-    .editable-content {
-      display: inline-block;
-      border: 1px solid #ccc;
-      padding: 5px;
-      margin-right: 5px;
-      white-space: nowrap;
+
+    span {
+      margin-right: 10px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .edit-buttons {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
     }
   </style>
 </head>
@@ -48,43 +108,70 @@
     <input type="text" id="groupMember4">
 
     <button onclick="addToQueue()">Join Queue</button>
+    <button onclick="nextInLine()">Next in Line</button>
   </div>
 
   <div id="waiting-list">
     <h2>Waiting List:</h2>
     <ul id="queue"></ul>
+    <div class="edit-buttons">
+      <button onclick="editNames()">Edit Names</button>
+      <button onclick="finishEdits()">Finish Edits</button>
+    </div>
   </div>
 
   <script>
     // JavaScript to manage the waiting list queue
     const queue = [];
-    let editingGroupIndex = -1;
+    let editMode = false;
 
     function addToQueue() {
-      const groupMember1 = document.getElementById("groupMember1").value;
-      const groupMember2 = document.getElementById("groupMember2").value;
-      const groupMember3 = document.getElementById("groupMember3").value;
-      const groupMember4 = document.getElementById("groupMember4").value;
+      const groupMember1 = document.getElementById("groupMember1").value || "None";
+      const groupMember2 = document.getElementById("groupMember2").value || "None";
+      const groupMember3 = document.getElementById("groupMember3").value || "None";
+      const groupMember4 = document.getElementById("groupMember4").value || "None";
 
-      const group = [groupMember1, groupMember2, groupMember3, groupMember4].filter(name => name.trim() !== "");
+      const group = [groupMember1, groupMember2, groupMember3, groupMember4];
       
-      if (group.length === 0) {
-        alert("Please enter at least one name to join the waiting list.");
-        return;
-      }
-
       const existingGroupIndex = findGroupIndex(group);
 
       if (existingGroupIndex !== -1) {
-        // Update existing group
         queue[existingGroupIndex] = group;
       } else {
-        // Add new group
         queue.push(group);
       }
 
       updateQueueDisplay();
       resetInputFields();
+    }
+
+    function nextInLine() {
+      if (queue.length > 0) {
+        queue.shift(); // Remove the first team from the waiting list
+        updateQueueDisplay();
+      }
+    }
+
+    function editNames() {
+      editMode = true;
+      updateQueueDisplay();
+    }
+
+    function finishEdits() {
+      editMode = false;
+      saveEdits();
+      updateQueueDisplay();
+    }
+
+    function saveEdits() {
+      const queueElement = document.getElementById("queue");
+
+      for (let i = 0; i < queue.length; i++) {
+        for (let j = 0; j < 4; j++) {
+          const textBox = queueElement.children[i].children[j + 1];
+          queue[i][j] = textBox.value;
+        }
+      }
     }
 
     function updateQueueDisplay() {
@@ -93,32 +180,23 @@
 
       for (let i = 0; i < queue.length; i++) {
         const listItem = document.createElement("li");
-        
-        if (editingGroupIndex === i) {
-          // Display editable content during editing
-          for (let j = 0; j < 4; j++) {
-            const contentEditable = document.createElement("div");
-            contentEditable.className = "editable-content";
-            contentEditable.contentEditable = true;
-            contentEditable.textContent = queue[i][j];
-            contentEditable.addEventListener("input", (event) => updateName(i, j, event.target.textContent));
-            listItem.appendChild(contentEditable);
-          }
 
-          const finishEditsButton = document.createElement("button");
-          finishEditsButton.textContent = "Finish Edits?";
-          finishEditsButton.className = "finish-edits-button";
-          finishEditsButton.addEventListener("click", () => finishEdits(i));
-          listItem.appendChild(finishEditsButton);
-        } else {
-          // Display names and "Edit" button
-          listItem.textContent = `${i + 1}. ${queue[i].join(', ')}`;
-          
-          const editButton = document.createElement("button");
-          editButton.textContent = "Edit";
-          editButton.className = "edit-button";
-          editButton.addEventListener("click", () => startEditing(i));
-          listItem.appendChild(editButton);
+        // Display team number
+        const teamNumber = document.createElement("span");
+        teamNumber.textContent = `${i + 1}. `;
+        listItem.appendChild(teamNumber);
+        
+        // Display editable text boxes for each name
+        for (let j = 0; j < 4; j++) {
+          const textBox = document.createElement("input");
+          textBox.type = "text";
+          textBox.value = queue[i][j];
+          if (editMode) {
+            textBox.removeAttribute("disabled");
+          } else {
+            textBox.setAttribute("disabled", true);
+          }
+          listItem.appendChild(textBox);
         }
 
         queueElement.appendChild(listItem);
@@ -132,26 +210,7 @@
       document.getElementById("groupMember4").value = "";
     }
 
-    function startEditing(groupIndex) {
-      // Start editing the selected group
-      editingGroupIndex = groupIndex;
-      updateQueueDisplay();
-    }
-
-    function updateName(groupIndex, memberIndex, newName) {
-      // Update name during editing
-      queue[groupIndex][memberIndex] = newName;
-      updateQueueDisplay();
-    }
-
-    function finishEdits(groupIndex) {
-      // Finish editing and save changes
-      editingGroupIndex = -1;
-      updateQueueDisplay();
-    }
-
     function findGroupIndex(newGroup) {
-      // Check if the new group already exists in the queue
       for (let i = 0; i < queue.length; i++) {
         if (arraysEqual(queue[i], newGroup)) {
           return i;
@@ -161,7 +220,6 @@
     }
 
     function arraysEqual(arr1, arr2) {
-      // Helper function to check if two arrays are equal
       return JSON.stringify(arr1) === JSON.stringify(arr2);
     }
   </script>
