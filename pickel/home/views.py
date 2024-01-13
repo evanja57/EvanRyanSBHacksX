@@ -24,6 +24,3 @@ def queue(request):
 
 
 
-
-
-
