@@ -9,6 +9,25 @@
     #waiting-list {
       margin-top: 20px;
     }
+    .edit-button {
+      cursor: pointer;
+      color: blue;
+      text-decoration: underline;
+      margin-left: 10px;
+    }
+    .finish-edits-button {
+      cursor: pointer;
+      color: green;
+      text-decoration: underline;
+      margin-left: 10px;
+    }
+    .editable-content {
+      display: inline-block;
+      border: 1px solid #ccc;
+      padding: 5px;
+      margin-right: 5px;
+      white-space: nowrap;
+    }
   </style>
 </head>
 <body>
@@ -16,8 +35,18 @@
   <h1>Waiting List Queue</h1>
 
   <div>
-    <label for="groupName">Enter Group Name:</label>
-    <input type="text" id="groupName">
+    <label for="groupMember1">Enter Name 1:</label>
+    <input type="text" id="groupMember1">
+    
+    <label for="groupMember2">Enter Name 2:</label>
+    <input type="text" id="groupMember2">
+
+    <label for="groupMember3">Enter Name 3:</label>
+    <input type="text" id="groupMember3">
+
+    <label for="groupMember4">Enter Name 4:</label>
+    <input type="text" id="groupMember4">
+
     <button onclick="addToQueue()">Join Queue</button>
   </div>
 
@@ -29,19 +58,33 @@
   <script>
     // JavaScript to manage the waiting list queue
     const queue = [];
+    let editingGroupIndex = -1;
 
     function addToQueue() {
-      const groupName = document.getElementById("groupName").value;
+      const groupMember1 = document.getElementById("groupMember1").value;
+      const groupMember2 = document.getElementById("groupMember2").value;
+      const groupMember3 = document.getElementById("groupMember3").value;
+      const groupMember4 = document.getElementById("groupMember4").value;
 
-      if (groupName.trim() === "") {
-        alert("Please enter a group name.");
+      const group = [groupMember1, groupMember2, groupMember3, groupMember4].filter(name => name.trim() !== "");
+      
+      if (group.length === 0) {
+        alert("Please enter at least one name to join the waiting list.");
         return;
       }
 
-      queue.push(groupName);
+      const existingGroupIndex = findGroupIndex(group);
+
+      if (existingGroupIndex !== -1) {
+        // Update existing group
+        queue[existingGroupIndex] = group;
+      } else {
+        // Add new group
+        queue.push(group);
+      }
 
       updateQueueDisplay();
-      document.getElementById("groupName").value = "";
+      resetInputFields();
     }
 
     function updateQueueDisplay() {
@@ -50,9 +93,76 @@
 
       for (let i = 0; i < queue.length; i++) {
         const listItem = document.createElement("li");
-        listItem.textContent = `${i + 1}. ${queue[i]}`;
+        
+        if (editingGroupIndex === i) {
+          // Display editable content during editing
+          for (let j = 0; j < 4; j++) {
+            const contentEditable = document.createElement("div");
+            contentEditable.className = "editable-content";
+            contentEditable.contentEditable = true;
+            contentEditable.textContent = queue[i][j];
+            contentEditable.addEventListener("input", (event) => updateName(i, j, event.target.textContent));
+            listItem.appendChild(contentEditable);
+          }
+
+          const finishEditsButton = document.createElement("button");
+          finishEditsButton.textContent = "Finish Edits?";
+          finishEditsButton.className = "finish-edits-button";
+          finishEditsButton.addEventListener("click", () => finishEdits(i));
+          listItem.appendChild(finishEditsButton);
+        } else {
+          // Display names and "Edit" button
+          listItem.textContent = `${i + 1}. ${queue[i].join(', ')}`;
+          
+          const editButton = document.createElement("button");
+          editButton.textContent = "Edit";
+          editButton.className = "edit-button";
+          editButton.addEventListener("click", () => startEditing(i));
+          listItem.appendChild(editButton);
+        }
+
         queueElement.appendChild(listItem);
       }
+    }
+
+    function resetInputFields() {
+      document.getElementById("groupMember1").value = "";
+      document.getElementById("groupMember2").value = "";
+      document.getElementById("groupMember3").value = "";
+      document.getElementById("groupMember4").value = "";
+    }
+
+    function startEditing(groupIndex) {
+      // Start editing the selected group
+      editingGroupIndex = groupIndex;
+      updateQueueDisplay();
+    }
+
+    function updateName(groupIndex, memberIndex, newName) {
+      // Update name during editing
+      queue[groupIndex][memberIndex] = newName;
+      updateQueueDisplay();
+    }
+
+    function finishEdits(groupIndex) {
+      // Finish editing and save changes
+      editingGroupIndex = -1;
+      updateQueueDisplay();
+    }
+
+    function findGroupIndex(newGroup) {
+      // Check if the new group already exists in the queue
+      for (let i = 0; i < queue.length; i++) {
+        if (arraysEqual(queue[i], newGroup)) {
+          return i;
+        }
+      }
+      return -1;
+    }
+
+    function arraysEqual(arr1, arr2) {
+      // Helper function to check if two arrays are equal
+      return JSON.stringify(arr1) === JSON.stringify(arr2);
     }
   </script>
 
