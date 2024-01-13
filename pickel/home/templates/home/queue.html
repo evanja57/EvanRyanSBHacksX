@@ -3,72 +3,58 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Waiting List</title>
+  <title>Waiting List Queue</title>
   <style>
-    #waiting-list-container {
-      text-align: center;
-      margin-top: 50px;
-    }
-
-    #waiting-list-display {
+    /* Add your custom styles here */
+    #waiting-list {
       margin-top: 20px;
-      font-size: 18px;
     }
   </style>
 </head>
 <body>
-  <div id="waiting-list-container">
-    <label for="name-input">Enter your name:</label>
-    <input type="text" id="name-input">
-    <button onclick="addToWaitingList()">Add to Waiting List</button>
-    <button onclick="removeFromWaitingList()">Remove First Person</button>
-    <div id="waiting-list-display">Waiting List: </div>
+
+  <h1>Waiting List Queue</h1>
+
+  <div>
+    <label for="groupName">Enter Group Name:</label>
+    <input type="text" id="groupName">
+    <button onclick="addToQueue()">Join Queue</button>
   </div>
-  
+
+  <div id="waiting-list">
+    <h2>Waiting List:</h2>
+    <ul id="queue"></ul>
+  </div>
+
   <script>
-    function addToWaitingList() {
-      const nameInput = document.getElementById("name-input");
-      const name = nameInput.value.trim();
+    // JavaScript to manage the waiting list queue
+    const queue = [];
 
-      if (name !== "") {
-        const waitingListDisplay = document.getElementById("waiting-list-display");
-        const names = waitingListDisplay.textContent.split('|').map(group => group.trim());
+    function addToQueue() {
+      const groupName = document.getElementById("groupName").value;
 
-        let lastGroup = names.length > 0 ? names[names.length - 1] : "";
-        if (lastGroup === "" || lastGroup.split(' | ').length >= 4) {
-          // Create a new group if the last group is full or doesn't exist
-          lastGroup = name;
-          names.push(lastGroup);
-        } else {
-          // Add to the existing group
-          lastGroup += ` | ${name}`;
-          names[names.length - 1] = lastGroup;
-        }
-
-        waitingListDisplay.textContent = "Waiting List: " + names.join(' | ');
-        nameInput.value = "";
+      if (groupName.trim() === "") {
+        alert("Please enter a group name.");
+        return;
       }
+
+      queue.push(groupName);
+
+      updateQueueDisplay();
+      document.getElementById("groupName").value = "";
     }
 
-    function removeFromWaitingList() {
-      const waitingListDisplay = document.getElementById("waiting-list-display");
-      const names = waitingListDisplay.textContent.split('|').map(group => group.trim());
+    function updateQueueDisplay() {
+      const queueElement = document.getElementById("queue");
+      queueElement.innerHTML = "";
 
-      if (names.length > 0) {
-        const firstGroup = names[0].split(' | ');
-        firstGroup.shift(); // Remove the first person from the first group
-
-        if (firstGroup.length > 0) {
-          names[0] = firstGroup.join(' | ');
-        } else {
-          names.shift(); // Remove the entire group if it becomes empty
-        }
-
-        waitingListDisplay.textContent = "Waiting List: " + names.join(' | ');
-      } else {
-        waitingListDisplay.textContent = "Waiting List: ";
+      for (let i = 0; i < queue.length; i++) {
+        const listItem = document.createElement("li");
+        listItem.textContent = `${i + 1}. ${queue[i]}`;
+        queueElement.appendChild(listItem);
       }
     }
   </script>
+
 </body>
 </html>
