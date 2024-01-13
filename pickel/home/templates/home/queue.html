@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Waiting List</title>
+  <style>
+    #waiting-list-container {
+      text-align: center;
+      margin-top: 50px;
+    }
+
+    #waiting-list-display {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div id="waiting-list-container">
+    <label for="name-input">Enter your name:</label>
+    <input type="text" id="name-input">
+    <button onclick="addToWaitingList()">Add to Waiting List</button>
+    <button onclick="removeFromWaitingList()">Remove First Person</button>
+    <div id="waiting-list-display">Waiting List: </div>
+  </div>
+  
+  <script>
+    function addToWaitingList() {
+      const nameInput = document.getElementById("name-input");
+      const name = nameInput.value.trim();
+
+      if (name !== "") {
+        const waitingListDisplay = document.getElementById("waiting-list-display");
+        const names = waitingListDisplay.textContent.split('|').map(group => group.trim());
+
+        let lastGroup = names.length > 0 ? names[names.length - 1] : "";
+        if (lastGroup === "" || lastGroup.split(' | ').length >= 4) {
+          // Create a new group if the last group is full or doesn't exist
+          lastGroup = name;
+          names.push(lastGroup);
+        } else {
+          // Add to the existing group
+          lastGroup += ` | ${name}`;
+          names[names.length - 1] = lastGroup;
+        }
+
+        waitingListDisplay.textContent = "Waiting List: " + names.join(' | ');
+        nameInput.value = "";
+      }
+    }
+
+    function removeFromWaitingList() {
+      const waitingListDisplay = document.getElementById("waiting-list-display");
+      const names = waitingListDisplay.textContent.split('|').map(group => group.trim());
+
+      if (names.length > 0) {
+        const firstGroup = names[0].split(' | ');
+        firstGroup.shift(); // Remove the first person from the first group
+
+        if (firstGroup.length > 0) {
+          names[0] = firstGroup.join(' | ');
+        } else {
+          names.shift(); // Remove the entire group if it becomes empty
+        }
+
+        waitingListDisplay.textContent = "Waiting List: " + names.join(' | ');
+      } else {
+        waitingListDisplay.textContent = "Waiting List: ";
+      }
+    }
+  </script>
+</body>
+</html>

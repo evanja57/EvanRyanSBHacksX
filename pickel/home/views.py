@@ -10,8 +10,10 @@ from django.shortcuts import reverse
 from django.shortcuts import get_object_or_404, render
 
 def title(request):
-
     return render(request, "home/title.html", {})
+
+def queue(request):
+    return render(request, "home/queue.html", {})
 
 
 
