@@ -17,15 +17,18 @@ def queue(request):
     return render(request, "home/queue.html", {})
 
 def beginner_guide(request):
-    return render(request, "home/beginner_guide.html")
+    return render(request, "home/beginner_guide.html", {})
 
 def watch_pros(request):
-    return render(request, "home/watch_pros.html")
+    return render(request, "home/watch_pros.html", {})
 
 #calendar stuff
 
 def calendar_view(request):
     return render(request, 'home/event_calendar.html', {})
+
+def chatbot(request):
+    return render(request, "home/index.html", {})
 
 
 

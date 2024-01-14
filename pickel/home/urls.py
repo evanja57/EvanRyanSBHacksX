@@ -11,6 +11,7 @@ urlpatterns = [
     path('beginner-guide/', views.beginner_guide, name='beginner_guide'),
     path('watch-pros/', views.watch_pros, name='watch_pros'),
     path('calendar/', calendar_view, name='calendar_view'),
+    path('chatbot', views.chatbot, name="chatbot")
 ]
 
 
