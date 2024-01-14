@@ -13,6 +13,7 @@
       width: 100%;
       position: fixed;
       top: 0;
+      z-index: 1; /* Added z-index to keep header above other elements */
     }
 
     header a {
@@ -38,7 +39,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 20px;
+      padding: 80px 20px 20px; /* Adjusted padding to account for the fixed header */
     }
 
     h1, h2 {
@@ -125,7 +126,8 @@
       align-items: center;
     }
 
-    #add-box-button {
+    #add-box-button,
+    #remove-box-button {
       padding: 10px 20px;
       font-size: 16px;
       border: none;
@@ -135,6 +137,12 @@
       cursor: pointer;
       transition: background-color 0.3s ease;
       margin-bottom: 10px;
+      position: relative;
+      top: 50px; /* Adjusted top position to move down */
+    }
+
+    #remove-box-button {
+      background-color: #e74c3c; /* Changed color for "Remove Court" button */
     }
 
     .court-box {
@@ -157,15 +165,15 @@
   </style>
 </head>
 <body>
-    <header>
-        <a href="{% url 'home:home' %}">Home</a>
-        <a href="{% url 'home:queue' %}">Queue</a>
-        <a href="{% url 'home:beginner_guide' %}">Beginner Guide</a>
-        <a href="{% url 'home:watch_pros' %}">Watch Pros</a>
-    </header>
+  <header>
+    <a href="{% url 'home:home' %}">Home</a>
+    <a href="{% url 'home:queue' %}">Queue</a>
+    <a href="{% url 'home:beginner_guide' %}">Beginner Guide</a>
+    <a href="{% url 'home:watch_pros' %}">Watch Pros</a>
+  </header>
+
   <div id="left-container">
-    
-  <h1>Waiting List Queue</h1>
+    <h1>Waiting List Queue</h1>
 
     <div>
       <label for="groupMember1">Enter Name 1:</label>
@@ -194,11 +202,11 @@
     </div>
   </div>
 
-
-  <div id="center-container">
+  <div id="left-container">
     <div id="wait-time-box">Expected Wait Time: <span id="wait-time">0 minutes</span></div>
 
     <button id="add-box-button" onclick="addNewCourt()">Add New Court</button>
+    <button id="remove-box-button" onclick="removeCourt()">Remove Court</button>
     <div id="court-container"></div>
   </div>
 
@@ -313,15 +321,32 @@
         courtContainer.innerHTML = "";
 
         for (let i = 0; i < courts.length; i++) {
-          const courtBox = document.createElement("div");
-          courtBox.classList.add("court-box");
-          if (courts[i].length > 0) {
+            const courtBox = document.createElement("div");
+            courtBox.classList.add("court-box");
+
+            // Display "Court Done" button
+            const courtDoneButton = document.createElement("button");
+            courtDoneButton.textContent = "Court Done";
+            courtDoneButton.onclick = function () {
+            clearCourt(i);
+            };
+
+            if (courts[i].length > 0) {
             courtBox.textContent = courts[i].join(', ');
-          } else {
+            courtBox.appendChild(courtDoneButton);
+            } else {
             courtBox.textContent = "Empty Court";
-          }
-          courtContainer.appendChild(courtBox);
+            }
+
+            courtContainer.appendChild(courtBox);
         }
+}
+
+function clearCourt(courtIndex) {
+  // Clear names from the specified court
+  courts[courtIndex] = [];
+  updateCourtDisplay();
+  updateWaitTime();
       }
 
       function resetInputFields() {
@@ -346,8 +371,17 @@
 
       function updateWaitTime() {
         const waitTimeBox = document.getElementById("wait-time");
-        const expectedWaitTime = queue.length * 5; // 5 minutes added for each team on the waitlist
-        waitTimeBox.textContent = `${expectedWaitTime} minutes`;
+        // Check if there are any open courts
+        const openCourts = courts.filter(court => court.length === 0);
+
+        if (openCourts.length > 0) {
+            // If there are open courts, expected wait time is 0 minutes
+            waitTimeBox.textContent = "0 minutes";
+        } else {
+            // If all courts are full, calculate expected wait time
+            const expectedWaitTime = (queue.length * 15) + 10; // 15 minutes added for each team on the waitlist
+            waitTimeBox.textContent = `${expectedWaitTime} minutes`;
+        }
       }
 
       function addNewCourt() {
@@ -356,8 +390,14 @@
         courts.push(newCourt);
         updateCourtDisplay();
       }
+
+      function removeCourt() {
+        if (courts.length > 0) {
+          courts.pop(); // Remove the bottom-most court
+          updateCourtDisplay();
+        }
+      }
     </script>
   </div>
-
 </body>
 </html>
