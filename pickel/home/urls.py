@@ -5,9 +5,9 @@ from . import views
 app_name = "home"
 
 urlpatterns = [
-    path("", views.title),
+    path('home/', views.title, name='home'),
 
-    path("queue/", views.queue, name="queue"),
+    path('queue/', views.queue, name='queue'),
 ]
 
 
