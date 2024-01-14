@@ -3,11 +3,4 @@ from django.contrib.auth.models import User
 
 # Create your models here.
 
-class CalendarEvent(models.Model):
-    title = models.CharField(max_length=200)
-    date = models.DateField()
-    description = models.TextField()
-    admin_user = models.ForeignKey(User, on_delete=models.CASCADE)
-
-
 
