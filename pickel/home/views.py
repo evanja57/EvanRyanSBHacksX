@@ -72,4 +72,4 @@ def search(request):
 
 
 
-GOOGLE_API_KEY = "AIzaSyB9WLZBV4EICU-lXezlRvdLyhoPS3P0f6Y"
+GOOGLE_API_KEY = "put api key here"
