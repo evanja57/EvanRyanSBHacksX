@@ -13,10 +13,16 @@
       margin: 0;
       padding: 0;
       display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    #left-container {
+      display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      height: 100vh;
+      padding: 20px;
     }
 
     h1, h2 {
@@ -88,141 +94,247 @@
       gap: 10px;
       margin-bottom: 10px;
     }
+
+    #wait-time-box {
+      background-color: #333;
+      color: #fff;
+      padding: 10px;
+      border-radius: 5px;
+      margin-right: auto; /* Auto margin to push to the top center */
+    }
+
+    #center-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #add-box-button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      background-color: #3498db;
+      color: #fff;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      margin-bottom: 10px;
+    }
+
+    .court-box {
+      width: 300px;
+      height: 200px;
+      background-color: #3498db;
+      color: #fff;
+      border-radius: 10px;
+      margin-top: 20px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #right-container {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      padding: 20px;
+    }
   </style>
 </head>
 <body>
 
-  <h1>Waiting List Queue</h1>
+  <div id="left-container">
+    <h1>Waiting List Queue</h1>
 
-  <div>
-    <label for="groupMember1">Enter Name 1:</label>
-    <input type="text" id="groupMember1">
-    
-    <label for="groupMember2">Enter Name 2:</label>
-    <input type="text" id="groupMember2">
+    <div>
+      <label for="groupMember1">Enter Name 1:</label>
+      <input type="text" id="groupMember1">
+      
+      <label for="groupMember2">Enter Name 2:</label>
+      <input type="text" id="groupMember2">
 
-    <label for="groupMember3">Enter Name 3:</label>
-    <input type="text" id="groupMember3">
+      <label for="groupMember3">Enter Name 3:</label>
+      <input type="text" id="groupMember3">
 
-    <label for="groupMember4">Enter Name 4:</label>
-    <input type="text" id="groupMember4">
+      <label for="groupMember4">Enter Name 4:</label>
+      <input type="text" id="groupMember4">
 
-    <button onclick="addToQueue()">Join Queue</button>
-    <button onclick="nextInLine()">Next in Line</button>
-  </div>
+      <button onclick="addToQueue()">Join Queue</button>
+      <button onclick="nextInLine()">Next in Line</button>
+    </div>
 
-  <div id="waiting-list">
-    <h2>Waiting List:</h2>
-    <ul id="queue"></ul>
-    <div class="edit-buttons">
-      <button onclick="editNames()">Edit Names</button>
-      <button onclick="finishEdits()">Finish Edits</button>
+    <div id="waiting-list">
+      <h2>Waiting List:</h2>
+      <ul id="queue"></ul>
+      <div class="edit-buttons">
+        <button onclick="editNames()">Edit Names</button>
+        <button onclick="finishEdits()">Finish Edits</button>
+      </div>
     </div>
   </div>
 
-  <script>
-    // JavaScript to manage the waiting list queue
-    const queue = [];
-    let editMode = false;
+  <div id="center-container">
+    <div id="wait-time-box">Expected Wait Time: <span id="wait-time">0 minutes</span></div>
 
-    function addToQueue() {
-      const groupMember1 = document.getElementById("groupMember1").value || "None";
-      const groupMember2 = document.getElementById("groupMember2").value || "None";
-      const groupMember3 = document.getElementById("groupMember3").value || "None";
-      const groupMember4 = document.getElementById("groupMember4").value || "None";
+    <button id="add-box-button" onclick="addNewCourt()">Add New Court</button>
+    <div id="court-container"></div>
+  </div>
 
-      const group = [groupMember1, groupMember2, groupMember3, groupMember4];
-      
-      const existingGroupIndex = findGroupIndex(group);
+  <div id="right-container">
+    <script>
+      // JavaScript to manage the waiting list queue
+      const queue = [];
+      const courts = [];
+      let editMode = false;
 
-      if (existingGroupIndex !== -1) {
-        queue[existingGroupIndex] = group;
-      } else {
-        queue.push(group);
+      function addToQueue() {
+        const groupMember1 = document.getElementById("groupMember1").value || "None";
+        const groupMember2 = document.getElementById("groupMember2").value || "None";
+        const groupMember3 = document.getElementById("groupMember3").value || "None";
+        const groupMember4 = document.getElementById("groupMember4").value || "None";
+
+        const group = [groupMember1, groupMember2, groupMember3, groupMember4];
+        
+        const existingGroupIndex = findGroupIndex(group);
+
+        if (existingGroupIndex !== -1) {
+          queue[existingGroupIndex] = group;
+        } else {
+          queue.push(group);
+        }
+
+        updateQueueDisplay();
+        resetInputFields();
+        updateWaitTime();
       }
 
-      updateQueueDisplay();
-      resetInputFields();
-    }
+      function nextInLine() {
+        if (queue.length > 0) {
+          const nextTeam = queue.shift(); // Remove the first team from the waiting list
+          updateQueueDisplay();
+          updateWaitTime();
+          addTeamToCourt(nextTeam);
+        }
+      }
 
-    function nextInLine() {
-      if (queue.length > 0) {
-        queue.shift(); // Remove the first team from the waiting list
+      function addTeamToCourt(team) {
+        let addedToExistingCourt = false;
+
+        for (let i = 0; i < courts.length; i++) {
+          if (courts[i].length === 0) {
+            courts[i] = team;
+            addedToExistingCourt = true;
+            break;
+          }
+        }
+
+        if (!addedToExistingCourt) {
+          courts.push(team);
+        }
+
+        updateCourtDisplay();
+      }
+
+      function editNames() {
+        editMode = true;
         updateQueueDisplay();
       }
-    }
 
-    function editNames() {
-      editMode = true;
-      updateQueueDisplay();
-    }
-
-    function finishEdits() {
-      editMode = false;
-      saveEdits();
-      updateQueueDisplay();
-    }
-
-    function saveEdits() {
-      const queueElement = document.getElementById("queue");
-
-      for (let i = 0; i < queue.length; i++) {
-        for (let j = 0; j < 4; j++) {
-          const textBox = queueElement.children[i].children[j + 1];
-          queue[i][j] = textBox.value;
-        }
+      function finishEdits() {
+        editMode = false;
+        saveEdits();
+        updateQueueDisplay();
       }
-    }
 
-    function updateQueueDisplay() {
-      const queueElement = document.getElementById("queue");
-      queueElement.innerHTML = "";
+      function saveEdits() {
+        const queueElement = document.getElementById("queue");
 
-      for (let i = 0; i < queue.length; i++) {
-        const listItem = document.createElement("li");
-
-        // Display team number
-        const teamNumber = document.createElement("span");
-        teamNumber.textContent = `${i + 1}. `;
-        listItem.appendChild(teamNumber);
-        
-        // Display editable text boxes for each name
-        for (let j = 0; j < 4; j++) {
-          const textBox = document.createElement("input");
-          textBox.type = "text";
-          textBox.value = queue[i][j];
-          if (editMode) {
-            textBox.removeAttribute("disabled");
-          } else {
-            textBox.setAttribute("disabled", true);
+        for (let i = 0; i < queue.length; i++) {
+          for (let j = 0; j < 4; j++) {
+            const textBox = queueElement.children[i].children[j + 1];
+            queue[i][j] = textBox.value;
           }
-          listItem.appendChild(textBox);
-        }
-
-        queueElement.appendChild(listItem);
-      }
-    }
-
-    function resetInputFields() {
-      document.getElementById("groupMember1").value = "";
-      document.getElementById("groupMember2").value = "";
-      document.getElementById("groupMember3").value = "";
-      document.getElementById("groupMember4").value = "";
-    }
-
-    function findGroupIndex(newGroup) {
-      for (let i = 0; i < queue.length; i++) {
-        if (arraysEqual(queue[i], newGroup)) {
-          return i;
         }
       }
-      return -1;
-    }
 
-    function arraysEqual(arr1, arr2) {
-      return JSON.stringify(arr1) === JSON.stringify(arr2);
-    }
-  </script>
+      function updateQueueDisplay() {
+        const queueElement = document.getElementById("queue");
+        queueElement.innerHTML = "";
+
+        for (let i = 0; i < queue.length; i++) {
+          const listItem = document.createElement("li");
+
+          // Display team number
+          const teamNumber = document.createElement("span");
+          teamNumber.textContent = `${i + 1}. `;
+          listItem.appendChild(teamNumber);
+          
+          // Display editable text boxes for each name
+          for (let j = 0; j < 4; j++) {
+            const textBox = document.createElement("input");
+            textBox.type = "text";
+            textBox.value = queue[i][j];
+            if (editMode) {
+              textBox.removeAttribute("disabled");
+            } else {
+              textBox.setAttribute("disabled", true);
+            }
+            listItem.appendChild(textBox);
+          }
+
+          queueElement.appendChild(listItem);
+        }
+      }
+
+      function updateCourtDisplay() {
+        const courtContainer = document.getElementById("court-container");
+        courtContainer.innerHTML = "";
+
+        for (let i = 0; i < courts.length; i++) {
+          const courtBox = document.createElement("div");
+          courtBox.classList.add("court-box");
+          if (courts[i].length > 0) {
+            courtBox.textContent = courts[i].join(', ');
+          } else {
+            courtBox.textContent = "Empty Court";
+          }
+          courtContainer.appendChild(courtBox);
+        }
+      }
+
+      function resetInputFields() {
+        document.getElementById("groupMember1").value = "";
+        document.getElementById("groupMember2").value = "";
+        document.getElementById("groupMember3").value = "";
+        document.getElementById("groupMember4").value = "";
+      }
+
+      function findGroupIndex(newGroup) {
+        for (let i = 0; i < queue.length; i++) {
+          if (arraysEqual(queue[i], newGroup)) {
+            return i;
+          }
+        }
+        return -1;
+      }
+
+      function arraysEqual(arr1, arr2) {
+        return JSON.stringify(arr1) === JSON.stringify(arr2);
+      }
+
+      function updateWaitTime() {
+        const waitTimeBox = document.getElementById("wait-time");
+        const expectedWaitTime = queue.length * 5; // 5 minutes added for each team on the waitlist
+        waitTimeBox.textContent = `${expectedWaitTime} minutes`;
+      }
+
+      function addNewCourt() {
+        const courtContainer = document.getElementById("court-container");
+        const newCourt = [];
+        courts.push(newCourt);
+        updateCourtDisplay();
+      }
+    </script>
+  </div>
 
 </body>
 </html>
