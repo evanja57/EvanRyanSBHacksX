@@ -9,6 +9,7 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, render, reverse
 import googlemaps
 from .forms import SearchForm
+from django.contrib.auth.decorators import login_required
 
 def title(request):
     return render(request, "home/title.html", {})
@@ -21,7 +22,10 @@ def beginner_guide(request):
 
 def watch_pros(request):
     return render(request, "home/watch_pros.html")
-
+  
+def calendar_view(request):
+    return render(request, 'home/event_calendar.html', {})
+  
 @csrf_exempt
 def search(request):
     if request.method == 'POST':
