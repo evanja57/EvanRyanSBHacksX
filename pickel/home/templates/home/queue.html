@@ -3,72 +3,226 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Waiting List</title>
+  <title>Waiting List Queue</title>
   <style>
-    #waiting-list-container {
-      text-align: center;
-      margin-top: 50px;
+    /* Add your custom styles here */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #1a1a1a;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
     }
 
-    #waiting-list-display {
+    h1, h2 {
+      text-align: center;
+    }
+
+    div {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       margin-top: 20px;
+    }
+
+    label {
+      margin-bottom: 5px;
       font-size: 18px;
+    }
+
+    input {
+      padding: 8px;
+      margin-bottom: 10px;
+      font-size: 16px;
+      border: 1px solid #fff;
+      border-radius: 5px;
+      background-color: #333;
+      color: #fff;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      background-color: #3498db;
+      color: #fff;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      margin-bottom: 10px;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    #waiting-list {
+      margin-top: 20px;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    li {
+      margin-bottom: 10px;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+    }
+
+    span {
+      margin-right: 10px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .edit-buttons {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
     }
   </style>
 </head>
 <body>
-  <div id="waiting-list-container">
-    <label for="name-input">Enter your name:</label>
-    <input type="text" id="name-input">
-    <button onclick="addToWaitingList()">Add to Waiting List</button>
-    <button onclick="removeFromWaitingList()">Remove First Person</button>
-    <div id="waiting-list-display">Waiting List: </div>
+
+  <h1>Waiting List Queue</h1>
+
+  <div>
+    <label for="groupMember1">Enter Name 1:</label>
+    <input type="text" id="groupMember1">
+    
+    <label for="groupMember2">Enter Name 2:</label>
+    <input type="text" id="groupMember2">
+
+    <label for="groupMember3">Enter Name 3:</label>
+    <input type="text" id="groupMember3">
+
+    <label for="groupMember4">Enter Name 4:</label>
+    <input type="text" id="groupMember4">
+
+    <button onclick="addToQueue()">Join Queue</button>
+    <button onclick="nextInLine()">Next in Line</button>
   </div>
-  
+
+  <div id="waiting-list">
+    <h2>Waiting List:</h2>
+    <ul id="queue"></ul>
+    <div class="edit-buttons">
+      <button onclick="editNames()">Edit Names</button>
+      <button onclick="finishEdits()">Finish Edits</button>
+    </div>
+  </div>
+
   <script>
-    function addToWaitingList() {
-      const nameInput = document.getElementById("name-input");
-      const name = nameInput.value.trim();
+    // JavaScript to manage the waiting list queue
+    const queue = [];
+    let editMode = false;
 
-      if (name !== "") {
-        const waitingListDisplay = document.getElementById("waiting-list-display");
-        const names = waitingListDisplay.textContent.split('|').map(group => group.trim());
+    function addToQueue() {
+      const groupMember1 = document.getElementById("groupMember1").value || "None";
+      const groupMember2 = document.getElementById("groupMember2").value || "None";
+      const groupMember3 = document.getElementById("groupMember3").value || "None";
+      const groupMember4 = document.getElementById("groupMember4").value || "None";
 
-        let lastGroup = names.length > 0 ? names[names.length - 1] : "";
-        if (lastGroup === "" || lastGroup.split(' | ').length >= 4) {
-          // Create a new group if the last group is full or doesn't exist
-          lastGroup = name;
-          names.push(lastGroup);
-        } else {
-          // Add to the existing group
-          lastGroup += ` | ${name}`;
-          names[names.length - 1] = lastGroup;
-        }
+      const group = [groupMember1, groupMember2, groupMember3, groupMember4];
+      
+      const existingGroupIndex = findGroupIndex(group);
 
-        waitingListDisplay.textContent = "Waiting List: " + names.join(' | ');
-        nameInput.value = "";
+      if (existingGroupIndex !== -1) {
+        queue[existingGroupIndex] = group;
+      } else {
+        queue.push(group);
+      }
+
+      updateQueueDisplay();
+      resetInputFields();
+    }
+
+    function nextInLine() {
+      if (queue.length > 0) {
+        queue.shift(); // Remove the first team from the waiting list
+        updateQueueDisplay();
       }
     }
 
-    function removeFromWaitingList() {
-      const waitingListDisplay = document.getElementById("waiting-list-display");
-      const names = waitingListDisplay.textContent.split('|').map(group => group.trim());
+    function editNames() {
+      editMode = true;
+      updateQueueDisplay();
+    }
 
-      if (names.length > 0) {
-        const firstGroup = names[0].split(' | ');
-        firstGroup.shift(); // Remove the first person from the first group
+    function finishEdits() {
+      editMode = false;
+      saveEdits();
+      updateQueueDisplay();
+    }
 
-        if (firstGroup.length > 0) {
-          names[0] = firstGroup.join(' | ');
-        } else {
-          names.shift(); // Remove the entire group if it becomes empty
+    function saveEdits() {
+      const queueElement = document.getElementById("queue");
+
+      for (let i = 0; i < queue.length; i++) {
+        for (let j = 0; j < 4; j++) {
+          const textBox = queueElement.children[i].children[j + 1];
+          queue[i][j] = textBox.value;
+        }
+      }
+    }
+
+    function updateQueueDisplay() {
+      const queueElement = document.getElementById("queue");
+      queueElement.innerHTML = "";
+
+      for (let i = 0; i < queue.length; i++) {
+        const listItem = document.createElement("li");
+
+        // Display team number
+        const teamNumber = document.createElement("span");
+        teamNumber.textContent = `${i + 1}. `;
+        listItem.appendChild(teamNumber);
+        
+        // Display editable text boxes for each name
+        for (let j = 0; j < 4; j++) {
+          const textBox = document.createElement("input");
+          textBox.type = "text";
+          textBox.value = queue[i][j];
+          if (editMode) {
+            textBox.removeAttribute("disabled");
+          } else {
+            textBox.setAttribute("disabled", true);
+          }
+          listItem.appendChild(textBox);
         }
 
-        waitingListDisplay.textContent = "Waiting List: " + names.join(' | ');
-      } else {
-        waitingListDisplay.textContent = "Waiting List: ";
+        queueElement.appendChild(listItem);
       }
+    }
+
+    function resetInputFields() {
+      document.getElementById("groupMember1").value = "";
+      document.getElementById("groupMember2").value = "";
+      document.getElementById("groupMember3").value = "";
+      document.getElementById("groupMember4").value = "";
+    }
+
+    function findGroupIndex(newGroup) {
+      for (let i = 0; i < queue.length; i++) {
+        if (arraysEqual(queue[i], newGroup)) {
+          return i;
+        }
+      }
+      return -1;
+    }
+
+    function arraysEqual(arr1, arr2) {
+      return JSON.stringify(arr1) === JSON.stringify(arr2);
     }
   </script>
+
 </body>
 </html>
