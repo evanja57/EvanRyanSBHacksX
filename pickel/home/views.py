@@ -15,6 +15,12 @@ def title(request):
 def queue(request):
     return render(request, "home/queue.html", {})
 
+def beginner_guide(request):
+    return render(request, "home/beginner_guide.html")
+
+def watch_pros(request):
+    return render(request, "home/watch_pros.html")
+
 
 
 
