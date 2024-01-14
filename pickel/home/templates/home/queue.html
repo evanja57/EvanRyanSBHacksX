@@ -377,9 +377,13 @@ function clearCourt(courtIndex) {
         if (openCourts.length > 0) {
             // If there are open courts, expected wait time is 0 minutes
             waitTimeBox.textContent = "0 minutes";
+        if (openCourts.length = 0) {
+            // If there are no open courts, and if the queue is also empty, the expected wait time is 10 mins
+            waitTimeBox.textContent = "10 minutes";
+        }
         } else {
-            // If all courts are full, calculate expected wait time
-            const expectedWaitTime = (queue.length * 15) + 10; // 15 minutes added for each team on the waitlist
+            // If all courts are full, and there is a queue, calculate expected wait time
+            const expectedWaitTime = queue.length * 15; // 15 minutes added for each team on the waitlist
             waitTimeBox.textContent = `${expectedWaitTime} minutes`;
         }
       }
