@@ -1,1 +1,108 @@
-<h1>Here is where you can go to watch pro gameplay</h1>
+<!-- watch_pros.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Watch Pros - My Website</title>
+  <style>
+    /* Add your custom styles here */
+    header {
+      background-color: #3498db;
+      padding: 15px;
+      text-align: center;
+      width: 100%;
+      position: fixed;
+      top: 0;
+    }
+
+    header a {
+      color: #fff;
+      text-decoration: none;
+      margin: 0 15px;
+      font-size: 18px;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #1a1a1a;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    h1, h2 {
+      text-align: center;
+    }
+
+    div {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    label {
+      margin-bottom: 5px;
+      font-size: 18px;
+    }
+
+    input {
+      padding: 8px;
+      margin-bottom: 10px;
+      font-size: 16px;
+      border: 1px solid #fff;
+      border-radius: 5px;
+      background-color: #333;
+      color: #fff;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      background-color: #3498db;
+      color: #fff;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      margin-bottom: 10px;
+    }
+
+    iframe {
+        margin-top: 20px;
+        border: 2px solid #fff; /* Add a border around the div */
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+  </style>
+</head>
+<body>
+    <header>
+        <a href="{% url 'home:home' %}">Home</a>
+        <a href="{% url 'home:queue' %}">Queue</a>
+        <a href="{% url 'home:beginner_guide' %}">Beginner Guide</a>
+        <a href="{% url 'home:watch_pros' %}">Watch Pros</a>
+    </header>
+  <h1>Watch Pros</h1>
+
+  <div>
+    <!-- Add your content for watching professionals here -->
+
+    <h3>Pickleballtv.com Professional live stream</h3>
+    <iframe width="560" height="315" src="https://pickleballtv.com" frameborder="0" allowfullscreen title="Pickleballtv.com Professional live stream"></iframe>
+
+    <h3>PPA Tour Professional Pickleball YouTube</h3>
+    <button onclick="window.open('https://www.youtube.com/@PPAtour', '_blank')">Visit PPA Tour YouTube Channel</button>
+
+  </div>
+
+</body>
+</html>
